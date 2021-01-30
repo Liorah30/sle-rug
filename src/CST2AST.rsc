@@ -32,12 +32,12 @@ AQuestion cst2ast(Question q) {
       return question("<l>",id("<i>"),cst2ast(typ),src=q@\loc);
     case (Question) `<Str l> <Id i>: <Type typ> = <Expr e>`:
       return computed_question("<l>", id("<i>"),cst2ast(typ), cst2ast(e), src=q@\loc);
-    case (Question) `if ( <Expr e> ) { <Question* if_qs> }`:
-      return if_then(cst2ast(e), [cst2ast(q) | Question q <- if_qs], src=q@\loc);
+    case (Question) `if ( <Expr e> ) { <Question* if_questions> }`:
+      return if_then(cst2ast(e), [cst2ast(qs) | Question qs <- if_questions], src=q@\loc);
     case (Question) `if ( <Expr e> ) { <Question* if_qs> } else { <Question* else_qs> }`:
-      return if_then_else(cst2ast(e), [cst2ast(q) | Question q <- if_qs], [cst2ast(q) | Question q <- else_qs], src=q@\loc);
-    case (Question) `{ <Question* qs> }`:
-      return block([cst2ast(q) | Question q <- qs], src=q@\loc);
+      return if_then_else(cst2ast(e), [cst2ast(tqs) | Question tqs <- if_qs], [cst2ast(fqs) | Question fqs <- else_qs], src=q@\loc);
+    case (Question) `{ <Question* qss> }`:
+      return block([cst2ast(bq) | Question bq <- qss], src=q@\loc);
     default:
       throw "Unhandled question <q>";
   }
