@@ -47,14 +47,14 @@ TEnv collect(AForm f) {
 
 //check form for type correctneess
 set[Message] check(AForm f, TEnv tenv, UseDef useDef) 
-	 = ({} | it + check(question, tenv, useDef) | /AQuestion question <- f.questions);
-	 //+ ({} | it + check(expr,tenv,useDef)|/AExpr expr := f);
+	 = ({} | it + check(question, tenv, useDef) | /AQuestion question <- f.questions)
+	 + ({} | it + check(expr,tenv,useDef)|/AExpr expr := f);
 
 
 // - produce an error if there are declared questions with the same name but different types.
 // - duplicate labels should trigger a warning 
 // - the declared type computed questions should match the type of the expression.
-/*set[Message] check(AQuestion q, TEnv tenv, UseDef useDef){
+set[Message] check(AQuestion q, TEnv tenv, UseDef useDef){
 	set[Message] msg ={};
 	switch(q){
 		case question(str _,AId id , AType _,src=loc location):
@@ -78,34 +78,9 @@ set[Message] check(AForm f, TEnv tenv, UseDef useDef)
 	}
 	return msg;
 }
-*/
 
-set[Message] check(AQuestion q, TEnv tenv, UseDef useDef) {
-	set[Message] msgs = {};
-	switch(q){
-		case question(str _, AId id, AType _, src = loc l):
-			msgs += {error("Duplicate question with different type", l) | (size((tenv<1,3>)[id.name]) > 1)} 
-			+ {warning("Same label for different questions", l) | (size((tenv<2,0>)[q.label]) > 1)}
-			+ {warning("Different label for occurences of same question", l) | (size((tenv<1,2>)[q.id.name]) > 1) };
-		case computed_question(str _, AId id, AType _, AExpr expr, src = loc l):
-			msgs += {error("Duplicate question with different type", l) | (size((tenv<1,3>)[id.name]) > 1)}
-			+ {warning("Same label for different questions", l) | (size((tenv<2,0>)[q.label]) > 1)}
-			+ {warning("Different label for occurences of same question", l) | (size((tenv<1,2>)[q.id.name]) > 1)}
-			+ check(expr, tenv, useDef);
-		case block(list[AQuestion] questions, src = loc _):
-			msgs += ({} | it + check(question, tenv, useDef) | /AQuestion question <- questions);
-		case if_then_else(AExpr condition, list[AQuestion] trueQuestions, list[AQuestion] falseQuestions, src = loc l):
-			msgs += {error("Condition is not boolean", l) | (typeOf(condition, tenv, useDef) != tbool())}
-			+ check(condition, tenv, useDef)
-			+ ({} | it + check(tQuestion, tenv, useDef) | /AQuestion tQuestion <- trueQuestions)
-			+ ({} | it + check(fQuestion, tenv, useDef) | /AQuestion fQuestion <- falseQuestions);
-		case if_then(AExpr condition, list[AQuestion] trueQuestions, src = loc l): 
-			msgs += {error("Condition is not boolean", l) | (typeOf(condition, tenv, useDef) != tbool())}
-			+ check(condition, tenv, useDef)
-			+ ({} | it + check(tQuestion, tenv, useDef) | /AQuestion tQuestion <- trueQuestions);
-	}
-	return msgs;
-}
+
+
 
 // Check operand compatibility with operators.
 // E.g. for an addition node add(lhs, rhs), 
