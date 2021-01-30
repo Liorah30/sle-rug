@@ -28,9 +28,9 @@ RefGraph resolve(AForm f) = <us, ds, us o ds>
 
 // Visit all nodes that have ref(AId id), i.e. all AExpr nodes.
 Use uses(AForm f) {
-  return {<id.src, id.name> | /ref(AId id) := f}; 
+  return {<expr.src, expr.id.name> | /AExpr expr:= f, expr has id}; 
 }
 // Visit all questions, either computed or non-computed to find variable definations
 Def defs(AForm f) {
- return {<id.name,id.src> | /question(_, AId id, _) := f || /computed_question(_, AId id, _,_) := f};
+ return {<q.id.name,q.src> | /AQuestion q:= f ,q has id};
   }
